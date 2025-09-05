@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Examen Psicométrico - Ventas</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
+    h1, h2 { text-align: center; }
+    .question { margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);}
+    button { padding: 10px 20px; margin: 10px; border-radius: 8px; cursor: pointer; }
+    #timer { font-size: 18px; color: red; text-align: center; margin-bottom: 20px; }
+    #result { margin-top: 20px; padding: 20px; background: #eaf6ff; border-radius: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Examen Psicométrico - Representante de Ventas</h1>
+  <h2>Tiempo límite: 20 minutos</h2>
+  <div id="timer">Tiempo restante: 20:00</div>
+
+  <div>
+    <label><b>Código personal del candidato:</b></label><br>
+    <input type="text" id="candidateCode" placeholder="Ingrese su código" required>
+    <button onclick="startExam()">Iniciar examen</button>
+  </div>
+  <br>
+
+  <form id="examForm" style="display:none;"></form>
+  <button id="submitBtn" type="button" onclick="submitExam()" style="display:none;">Enviar examen</button>
+
+  <div id="result"></div>
+
+<script>
+const questions = [
+  {q:"1. ¿Cuál es el sinónimo de 'proactivo'?", options:["a) Reactivo","b) Dinámico","c) Pasivo","d) Indiferente"], answer:"b"},
+  {q:"2. Complete la analogía: Vender es a cliente como enseñar es a...", options:["a) Alumno","b) Maestro","c) Escuela","d) Libro"], answer:"a"},
+  {q:"3. ¿Qué palabra no pertenece al grupo?", options:["a) Negociar","b) Convencer","c) Persuadir","d) Descansar"], answer:"d"},
+  {q:"4. ¿Qué significa 'empatía' en el contexto laboral?", options:["a) Imponer la propia opinión","b) Comprender a los demás","c) Evitar conflictos","d) Ser competitivo"], answer:"b"},
+  {q:"5. En ventas, 'objeción' significa:", options:["a) Una negativa del cliente","b) Una compra inmediata","c) Una recomendación","d) Una promoción especial"], answer:"a"},
+  {q:"6. Si un producto cuesta $250 y se ofrece un 20% de descuento, ¿cuál es el precio final?", options:["a) $250","b) $225","c) $200","d) $180"], answer:"c"},
+  {q:"7. Si un vendedor gana el 10% de comisión sobre una venta de $15,000, ¿cuánto gana?", options:["a) $1000","b) $1200","c) $1500","d) $2000"], answer:"c"},
+  {q:"8. Si en un mes vendió 120 unidades y el siguiente mes 150, ¿qué porcentaje de incremento tuvo?", options:["a) 20%","b) 25%","c) 30%","d) 35%"], answer:"b"},
+  {q:"9. En una meta trimestral de $300,000, si ya vendió $180,000, ¿qué porcentaje falta por cubrir?", options:["a) 30%","b) 35%","c) 40%","d) 45%"], answer:"c"},
+  {q:"10. Si un cliente compra 3 productos de $450 cada uno, ¿cuál es el total con IVA (16%)?", options:["a) $1350","b) $1485","c) $1566","d) $1570"], answer:"c"},
+  {q:"11. Todos los representantes de ventas son persuasivos. Algunos persuasivos son creativos. Entonces:", options:["a) Todos los creativos son representantes de ventas","b) Algunos representantes de ventas son creativos","c) Ningún creativo es persuasivo","d) Algunos creativos no son persuasivos"], answer:"b"},
+  {q:"12. Si A>B, B>C, entonces:", options:["a) A<C","b) A=B","c) A>C","d) C>A"], answer:"c"},
+  {q:"13. Serie: 2, 4, 8, 16, ?", options:["a) 18","b) 24","c) 32","d) 36"], answer:"c"},
+  {q:"14. Serie: 3, 6, 9, 12, ?", options:["a) 15","b) 16","c) 18","d) 20"], answer:"a"},
+  {q:"15. Si hoy es miércoles, ¿qué día será dentro de 10 días?", options:["a) Viernes","b) Domingo","c) Sábado","d) Lunes"], answer:"d"},
+  {q:"16. En una negociación difícil usted tiende a:", options:["a) Imponerse","b) Escuchar y buscar acuerdos","c) Ceder sin discutir","d) Evitar la negociación"], answer:"b"},
+  {q:"17. Para lograr una venta, lo más importante es:", options:["a) Presionar al cliente","b) Escuchar sus necesidades","c) Ofrecer descuentos excesivos","d) Hablar sin parar"], answer:"b"},
+  {q:"18. Si un cliente está molesto, usted:", options:["a) Se molesta también","b) Mantiene la calma y escucha","c) Ignora al cliente","d) Le corta la llamada"], answer:"b"},
+  {q:"19. Para alcanzar sus metas de ventas, usted:", options:["a) Se organiza y planifica","b) Espera a que lleguen los clientes","c) Se concentra solo en clientes fáciles","d) Evita las metas"], answer:"a"},
+  {q:"20. El éxito en ventas depende principalmente de:", options:["a) La suerte","b) La perseverancia y estrategia","c) Los precios bajos","d) El producto se vende solo"], answer:"b"},
+  {q:"21. Prefiero trabajar en ventas porque:", options:["a) No requiere esfuerzo","b) Me gusta el reto y la interacción con personas","c) Es el único trabajo disponible","d) No me interesa mucho"], answer:"b"},
+  {q:"22. Cuando tengo varias tareas pendientes:", options:["a) Me estreso y no hago nada","b) Priorizo y organizo","c) Delego todo","d) Lo dejo al azar"], answer:"b"},
+  {q:"23. En mi equipo de trabajo suelo ser:", options:["a) Competitivo y poco cooperativo","b) Colaborador y motivador","c) Pasivo y desinteresado","d) Reservado y aislado"], answer:"b"},
+  {q:"24. Para cerrar una venta complicada suelo:", options:["a) Escuchar activamente y responder objeciones","b) Aumentar la presión","c) Terminar la reunión rápido","d) Evitar clientes difíciles"], answer:"a"},
+  {q:"25. En cuanto a ética laboral considero que:", options:["a) Se vale todo para vender","b) La honestidad genera confianza y fidelidad","c) Es mejor ocultar información","d) Los valores no importan"], answer:"b"}
+];
+
+let timeLeft = 20 * 60;
+let timer;
+function startExam(){
+  const code = document.getElementById("candidateCode").value.trim();
+  if(!code){ alert("Ingrese un código personal."); return; }
+
+  // Checar si ya se usó la clave
+  if(localStorage.getItem("exam_"+code)){
+    alert("Este examen ya fue contestado con esta clave.");
+    return;
+  }
+
+  document.getElementById("examForm").style.display = "block";
+  document.getElementById("submitBtn").style.display = "inline-block";
+
+  // Render preguntas
+  const form = document.getElementById("examForm");
+  form.innerHTML = "";
+  questions.forEach((item, index) => {
+    const div = document.createElement("div");
+    div.className = "question";
+    div.innerHTML = `<p>${item.q}</p>`;
+    item.options.forEach(opt => {
+      div.innerHTML += `<label><input type="radio" name="q${index}" value="${opt.charAt(0)}"> ${opt}</label><br>`;
+    });
+    form.appendChild(div);
+  });
+
+  // Timer
+  timer = setInterval(() => {
+    let min = Math.floor(timeLeft / 60);
+    let sec = timeLeft % 60;
+    document.getElementById("timer").textContent = `Tiempo restante: ${min}:${sec<10?"0":""}${sec}`;
+    timeLeft--;
+    if(timeLeft < 0){ clearInterval(timer); submitExam(); }
+  },1000);
+}
+
+function submitExam(){
+  clearInterval(timer);
+  const code = document.getElementById("candidateCode").value.trim();
+  let score = 0;
+  questions.forEach((item, i) => {
+    const ans = document.querySelector(`input[name="q${i}"]:checked`);
+    if(ans && ans.value === item.answer) score++;
+  });
+  const percent = Math.round((score/questions.length)*100);
+
+  // Guardar en localStorage
+  const resultObj = {score:score,percent:percent,date:new Date().toLocaleString()};
+  localStorage.setItem("exam_"+code, JSON.stringify(resultObj));
+
+  const resultDiv = document.getElementById("result");
+  resultDiv.innerHTML = `<h2>Resultados</h2>
+    <p><b>Candidato:</b> ${code}</p>
+    <p><b>Puntaje:</b> ${score} / ${questions.length}</p>
+    <p><b>Porcentaje:</b> ${percent}%</p>
+    <p><i>Este resultado ha sido guardado localmente y no podrá volver a presentar el examen con esta clave.</i></p>
+    <button onclick="downloadResult('${code}')">Descargar resultado (.txt)</button>`;
+}
+
+function downloadResult(code){
+  const data = localStorage.getItem("exam_"+code);
+  if(!data){ alert("No hay resultados guardados."); return; }
+  const blob = new Blob([`Resultado Examen Psicométrico\nCandidato: ${code}\nDatos: ${data}`], {type:"text/plain"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `resultado_${code}.txt`;
+  link.click();
+}
+</script>
+</body>
+</html>
