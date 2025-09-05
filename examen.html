@@ -1,133 +1,184 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Examen Psicométrico - Ventas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
-    h1, h2 { text-align: center; }
-    .question { margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);}
-    button { padding: 10px 20px; margin: 10px; border-radius: 8px; cursor: pointer; }
-    #timer { font-size: 18px; color: red; text-align: center; margin-bottom: 20px; }
-    #result { margin-top: 20px; padding: 20px; background: #eaf6ff; border-radius: 10px; }
+    :root { --bg:#f9fafb; --card:#ffffff; --ink:#111827; --muted:#6b7280; --accent:#2563eb; --warn:#dc2626; }
+    body { font-family: system-ui, Arial, sans-serif; margin:0; background:var(--bg); color:var(--ink); }
+    header { padding:20px 16px; text-align:center; position:relative; }
+    header img { position:absolute; top:15px; right:20px; height:50px; }
+    h1 { margin:0 0 6px; font-size:1.4rem; }
+    h2 { margin:6px 0 0; font-weight:500; color:var(--muted); font-size:0.95rem; }
+    main { max-width:900px; margin:0 auto; padding:0 16px 48px; }
+    .card { background:var(--card); border-radius:14px; box-shadow:0 10px 25px rgba(0,0,0,.05); padding:18px; margin-bottom:16px; }
+    label { display:inline-block; margin-bottom:6px; font-weight:600; }
+    input[type="text"] { width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px; font-size:1rem; }
+    .btn { display:inline-flex; align-items:center; gap:8px; border:0; background:var(--accent); color:#fff; padding:10px 16px; border-radius:10px; cursor:pointer; font-weight:600; }
+    .btn-secondary { background:#111827; }
+    .btn-muted { background:#e5e7eb; color:#111827; }
+    .timer { text-align:center; font-weight:700; color:var(--warn); margin:8px 0 16px; font-size:1.05rem; }
+    .section-title { font-size:1rem; margin:6px 0 12px; color:var(--muted); font-weight:700; }
+    .question { padding:14px; border:1px solid #eef2f7; border-radius:12px; margin-bottom:12px; background:#fff; }
+    .option { display:flex; gap:10px; margin:6px 0; }
+    .result { background:#eef6ff; border:1px solid #dbeafe; border-radius:12px; padding:16px; }
   </style>
 </head>
 <body>
-  <h1>Examen Psicométrico - Representante de Ventas</h1>
-  <h2>Tiempo límite: 20 minutos</h2>
-  <div id="timer">Tiempo restante: 20:00</div>
+  <header>
+    <h1>Examen Psicométrico – Representante de Ventas</h1>
+    <h2>Tiempo límite: 20 minutos • 1 intento por clave</h2>
+    <img src="APRACOM Internacional.jpg" alt="Logo Apracom Internacional" />
+  </header>
 
-  <div>
-    <label><b>Código personal del candidato:</b></label><br>
-    <input type="text" id="candidateCode" placeholder="Ingrese su código" required>
-    <button onclick="startExam()">Iniciar examen</button>
-  </div>
-  <br>
+  <main>
+    <div class="card">
+      <label for="candidateCode">Código personal del candidato</label>
+      <input id="candidateCode" type="text" placeholder="Ingresa tu clave" />
+      <button id="startBtn" class="btn" style="margin-top:10px;">Iniciar examen</button>
+      <div id="timer" class="timer">Tiempo restante: 20:00</div>
+    </div>
 
-  <form id="examForm" style="display:none;"></form>
-  <button id="submitBtn" type="button" onclick="submitExam()" style="display:none;">Enviar examen</button>
+    <form id="examForm" style="display:none;"></form>
+    <button id="submitBtn" type="button" class="btn btn-secondary" style="display:none;">Enviar examen</button>
 
-  <div id="result"></div>
+    <div id="resultWrap" class="card" style="display:none;">
+      <div class="result" id="result"></div>
+      <button id="downloadBtn" class="btn" style="margin-top:10px;">Descargar resultado (.txt)</button>
+    </div>
+  </main>
 
-<script>
-const questions = [
-  {q:"1. ¿Cuál es el sinónimo de 'proactivo'?", options:["a) Reactivo","b) Dinámico","c) Pasivo","d) Indiferente"], answer:"b"},
-  {q:"2. Complete la analogía: Vender es a cliente como enseñar es a...", options:["a) Alumno","b) Maestro","c) Escuela","d) Libro"], answer:"a"},
-  {q:"3. ¿Qué palabra no pertenece al grupo?", options:["a) Negociar","b) Convencer","c) Persuadir","d) Descansar"], answer:"d"},
-  {q:"4. ¿Qué significa 'empatía' en el contexto laboral?", options:["a) Imponer la propia opinión","b) Comprender a los demás","c) Evitar conflictos","d) Ser competitivo"], answer:"b"},
-  {q:"5. En ventas, 'objeción' significa:", options:["a) Una negativa del cliente","b) Una compra inmediata","c) Una recomendación","d) Una promoción especial"], answer:"a"},
-  {q:"6. Si un producto cuesta $250 y se ofrece un 20% de descuento, ¿cuál es el precio final?", options:["a) $250","b) $225","c) $200","d) $180"], answer:"c"},
-  {q:"7. Si un vendedor gana el 10% de comisión sobre una venta de $15,000, ¿cuánto gana?", options:["a) $1000","b) $1200","c) $1500","d) $2000"], answer:"c"},
-  {q:"8. Si en un mes vendió 120 unidades y el siguiente mes 150, ¿qué porcentaje de incremento tuvo?", options:["a) 20%","b) 25%","c) 30%","d) 35%"], answer:"b"},
-  {q:"9. En una meta trimestral de $300,000, si ya vendió $180,000, ¿qué porcentaje falta por cubrir?", options:["a) 30%","b) 35%","c) 40%","d) 45%"], answer:"c"},
-  {q:"10. Si un cliente compra 3 productos de $450 cada uno, ¿cuál es el total con IVA (16%)?", options:["a) $1350","b) $1485","c) $1566","d) $1570"], answer:"c"},
-  {q:"11. Todos los representantes de ventas son persuasivos. Algunos persuasivos son creativos. Entonces:", options:["a) Todos los creativos son representantes de ventas","b) Algunos representantes de ventas son creativos","c) Ningún creativo es persuasivo","d) Algunos creativos no son persuasivos"], answer:"b"},
-  {q:"12. Si A>B, B>C, entonces:", options:["a) A<C","b) A=B","c) A>C","d) C>A"], answer:"c"},
-  {q:"13. Serie: 2, 4, 8, 16, ?", options:["a) 18","b) 24","c) 32","d) 36"], answer:"c"},
-  {q:"14. Serie: 3, 6, 9, 12, ?", options:["a) 15","b) 16","c) 18","d) 20"], answer:"a"},
-  {q:"15. Si hoy es miércoles, ¿qué día será dentro de 10 días?", options:["a) Viernes","b) Domingo","c) Sábado","d) Lunes"], answer:"d"},
-  {q:"16. En una negociación difícil usted tiende a:", options:["a) Imponerse","b) Escuchar y buscar acuerdos","c) Ceder sin discutir","d) Evitar la negociación"], answer:"b"},
-  {q:"17. Para lograr una venta, lo más importante es:", options:["a) Presionar al cliente","b) Escuchar sus necesidades","c) Ofrecer descuentos excesivos","d) Hablar sin parar"], answer:"b"},
-  {q:"18. Si un cliente está molesto, usted:", options:["a) Se molesta también","b) Mantiene la calma y escucha","c) Ignora al cliente","d) Le corta la llamada"], answer:"b"},
-  {q:"19. Para alcanzar sus metas de ventas, usted:", options:["a) Se organiza y planifica","b) Espera a que lleguen los clientes","c) Se concentra solo en clientes fáciles","d) Evita las metas"], answer:"a"},
-  {q:"20. El éxito en ventas depende principalmente de:", options:["a) La suerte","b) La perseverancia y estrategia","c) Los precios bajos","d) El producto se vende solo"], answer:"b"},
-  {q:"21. Prefiero trabajar en ventas porque:", options:["a) No requiere esfuerzo","b) Me gusta el reto y la interacción con personas","c) Es el único trabajo disponible","d) No me interesa mucho"], answer:"b"},
-  {q:"22. Cuando tengo varias tareas pendientes:", options:["a) Me estreso y no hago nada","b) Priorizo y organizo","c) Delego todo","d) Lo dejo al azar"], answer:"b"},
-  {q:"23. En mi equipo de trabajo suelo ser:", options:["a) Competitivo y poco cooperativo","b) Colaborador y motivador","c) Pasivo y desinteresado","d) Reservado y aislado"], answer:"b"},
-  {q:"24. Para cerrar una venta complicada suelo:", options:["a) Escuchar activamente y responder objeciones","b) Aumentar la presión","c) Terminar la reunión rápido","d) Evitar clientes difíciles"], answer:"a"},
-  {q:"25. En cuanto a ética laboral considero que:", options:["a) Se vale todo para vender","b) La honestidad genera confianza y fidelidad","c) Es mejor ocultar información","d) Los valores no importan"], answer:"b"}
-];
+  <script>
+    // ---------------------------
+    // Preguntas (30 ítems del examen)
+    // ---------------------------
+    const questions = [
+      // Razonamiento Verbal (5)
+      {q:"1. ¿Cuál es el sinónimo de 'proactivo'?", opts:["a) Reactivo","b) Dinámico","c) Pasivo","d) Indiferente"]},
+      {q:"2. Complete la analogía: Vender es a cliente como enseñar es a...", opts:["a) Alumno","b) Maestro","c) Escuela","d) Libro"]},
+      {q:"3. ¿Qué palabra no pertenece al grupo?", opts:["a) Negociar","b) Convencer","c) Persuadir","d) Descansar"]},
+      {q:"4. ¿Qué significa 'empatía' en el contexto laboral?", opts:["a) Imponer la propia opinión","b) Comprender a los demás","c) Evitar conflictos","d) Ser competitivo"]},
+      {q:"5. En ventas, 'objeción' significa:", opts:["a) Una negativa del cliente","b) Una compra inmediata","c) Una recomendación","d) Una promoción especial"]},
 
-let timeLeft = 20 * 60;
-let timer;
-function startExam(){
-  const code = document.getElementById("candidateCode").value.trim();
-  if(!code){ alert("Ingrese un código personal."); return; }
+      // Razonamiento Numérico (5)
+      {q:"6. Si un producto cuesta $250 y se ofrece un 20% de descuento, ¿cuál es el precio final?", opts:["a) $250","b) $225","c) $200","d) $180"]},
+      {q:"7. Si un vendedor gana el 10% de comisión sobre una venta de $15,000, ¿cuánto gana?", opts:["a) $1000","b) $1200","c) $1500","d) $2000"]},
+      {q:"8. Si en un mes vendió 120 unidades y el siguiente mes 150, ¿qué porcentaje de incremento tuvo?", opts:["a) 20%","b) 25%","c) 30%","d) 35%"]},
+      {q:"9. En una meta trimestral de $300,000, si ya vendió $180,000, ¿qué porcentaje falta por cubrir?", opts:["a) 30%","b) 35%","c) 40%","d) 45%"]},
+      {q:"10. Si un cliente compra 3 productos de $450 cada uno, ¿cuál es el total con IVA (16%)?", opts:["a) $1350","b) $1485","c) $1566","d) $1570"]},
 
-  // Checar si ya se usó la clave
-  if(localStorage.getItem("exam_"+code)){
-    alert("Este examen ya fue contestado con esta clave.");
-    return;
-  }
+      // Razonamiento Lógico (5)
+      {q:"11. Todos los representantes de ventas son persuasivos. Algunos persuasivos son creativos. Entonces:", opts:["a) Todos los creativos son representantes de ventas","b) Algunos representantes de ventas son creativos","c) Ningún creativo es persuasivo","d) Algunos creativos no son persuasivos"]},
+      {q:"12. Si A > B, B > C, entonces:", opts:["a) A < C","b) A = B","c) A > C","d) C > A"]},
+      {q:"13. Serie: 2, 4, 8, 16, ?", opts:["a) 18","b) 24","c) 32","d) 36"]},
+      {q:"14. Serie: 3, 6, 9, 12, ?", opts:["a) 15","b) 16","c) 18","d) 20"]},
+      {q:"15. Si hoy es miércoles, ¿qué día será dentro de 10 días?", opts:["a) Viernes","b) Domingo","c) Sábado","d) Lunes"]},
 
-  document.getElementById("examForm").style.display = "block";
-  document.getElementById("submitBtn").style.display = "inline-block";
+      // Personalidad y Competencias (15)
+      {q:"16. Durante una reunión con un cliente cambiante, usted tiende a:", opts:["a) Frustrarse pero adaptarse","b) Mostrar molestia","c) Detener la reunión","d) Seguir con su propuesta inicial"]},
+      {q:"17. ¿Qué frase refleja mejor su visión de ventas?", opts:["a) Insistir siempre funciona","b) Entender al cliente es lo más importante","c) Vender depende de la suerte","d) Nunca dejar ir oportunidades"]},
+      {q:"18. Un cliente lanza una crítica injustificada. Usted:", opts:["a) Se defiende","b) Pide detalles específicos","c) Cierra la conversación","d) Se disculpa sin culpa"]},
+      {q:"19. ¿Qué lo describe mejor?", opts:["a) Actúo según surja","b) Anticipo y planifico","c) Me enfoco en lo urgente","d) Necesito guía constante"]},
+      {q:"20. ¿Qué lo motiva más a cumplir metas?", opts:["a) Reconocimiento y crecimiento","b) Evitar sanciones","c) Buena suerte con clientes","d) No me interesan mucho"]},
+      {q:"21. ¿Por qué eligió ventas?", opts:["a) Dinero rápido","b) Interés en personas y dinamismo","c) No sabía qué más hacer","d) Es un trabajo más"]},
+      {q:"22. Con muchas tareas al mismo tiempo usted:", opts:["a) Le cuesta pero se organiza","b) Prioriza desde el inicio","c) Se distrae","d) Evita lo abrumador"]},
+      {q:"23. Actitud ante un compañero que necesita ayuda:", opts:["a) Solo si no me afecta","b) Colaboro activamente","c) No es mi problema","d) Que pida ayuda al jefe"]},
+      {q:"24. En un cierre complicado usted:", opts:["a) Escucha y replantea valor","b) Repite con insistencia","c) Abandona rápido","d) Se frustra y evita"]},
+      {q:"25. La honestidad en ventas es:", opts:["a) A veces exagerada","b) Clave para la confianza","c) Solo importa si descubren","d) Relativa"]},
+      {q:"26. Cliente lo rechaza tajantemente. Usted:", opts:["a) Insiste más","b) Toma nota y contacta después","c) Lo descarta","d) Siente que no sirve"]},
+      {q:"27. Si no logra una meta de ventas:", opts:["a) Ajusta estrategia","b) Culpa a factores externos","c) Se desmotiva","d) Cambia meta sin consultar"]},
+      {q:"28. Su forma de operar en ventas es:", opts:["a) Con método claro","b) Intuición sobre estrategia","c) Solo suerte","d) Improvisar siempre"]},
+      {q:"29. Si le asignan un cliente nuevo:", opts:["a) Pide apoyo y se prepara","b) Evita contacto","c) Se queja","d) Pide reasignación"]},
+      {q:"30. La importancia de seguir aprendiendo es:", opts:["a) Clave para crecer","b) Solo si es obligatorio","c) No necesario","d) Prefiero experiencia"]},
+    ];
 
-  // Render preguntas
-  const form = document.getElementById("examForm");
-  form.innerHTML = "";
-  questions.forEach((item, index) => {
-    const div = document.createElement("div");
-    div.className = "question";
-    div.innerHTML = `<p>${item.q}</p>`;
-    item.options.forEach(opt => {
-      div.innerHTML += `<label><input type="radio" name="q${index}" value="${opt.charAt(0)}"> ${opt}</label><br>`;
-    });
-    form.appendChild(div);
-  });
+    const el = {
+      code: document.getElementById('candidateCode'),
+      start: document.getElementById('startBtn'),
+      timer: document.getElementById('timer'),
+      form: document.getElementById('examForm'),
+      submit: document.getElementById('submitBtn'),
+      resultWrap: document.getElementById('resultWrap'),
+      result: document.getElementById('result'),
+      download: document.getElementById('downloadBtn'),
+    };
 
-  // Timer
-  timer = setInterval(() => {
-    let min = Math.floor(timeLeft / 60);
-    let sec = timeLeft % 60;
-    document.getElementById("timer").textContent = `Tiempo restante: ${min}:${sec<10?"0":""}${sec}`;
-    timeLeft--;
-    if(timeLeft < 0){ clearInterval(timer); submitExam(); }
-  },1000);
-}
+    // Render
+    function renderExam(){
+      el.form.innerHTML="";
+      questions.forEach((item,i)=>{
+        const div=document.createElement('div');
+        div.className="question";
+        div.innerHTML=`<p>${item.q}</p>`;
+        item.opts.forEach(opt=>{
+          const v=opt.charAt(0);
+          div.innerHTML+=`<label class="option"><input type="radio" name="q${i}" value="${v}"/> ${opt}</label>`;
+        });
+        el.form.appendChild(div);
+      });
+    }
 
-function submitExam(){
-  clearInterval(timer);
-  const code = document.getElementById("candidateCode").value.trim();
-  let score = 0;
-  questions.forEach((item, i) => {
-    const ans = document.querySelector(`input[name="q${i}"]:checked`);
-    if(ans && ans.value === item.answer) score++;
-  });
-  const percent = Math.round((score/questions.length)*100);
+    // Timer
+    const TOTAL=20*60; let left=TOTAL; let tick;
+    function startTimer(){
+      el.timer.textContent=`Tiempo restante: ${fmt(left)}`;
+      tick=setInterval(()=>{
+        left--; el.timer.textContent=`Tiempo restante: ${fmt(left)}`;
+        if(left<=0){ clearInterval(tick); submitExam(true); }
+      },1000);
+    }
+    function fmt(s){const m=Math.floor(s/60),sec=s%60;return `${m}:${sec<10?"0":""}${sec}`;}
 
-  // Guardar en localStorage
-  const resultObj = {score:score,percent:percent,date:new Date().toLocaleString()};
-  localStorage.setItem("exam_"+code, JSON.stringify(resultObj));
+    // Un solo intento
+    function used(code){return localStorage.getItem("exam_"+code)!=null;}
+    function save(code,data){localStorage.setItem("exam_"+code,JSON.stringify(data));}
 
-  const resultDiv = document.getElementById("result");
-  resultDiv.innerHTML = `<h2>Resultados</h2>
-    <p><b>Candidato:</b> ${code}</p>
-    <p><b>Puntaje:</b> ${score} / ${questions.length}</p>
-    <p><b>Porcentaje:</b> ${percent}%</p>
-    <p><i>Este resultado ha sido guardado localmente y no podrá volver a presentar el examen con esta clave.</i></p>
-    <button onclick="downloadResult('${code}')">Descargar resultado (.txt)</button>`;
-}
+    el.start.onclick=()=>{
+      const code=el.code.value.trim();
+      if(!code){alert("Ingrese su código");return;}
+      if(used(code)){alert("Ya se contestó con esta clave en este navegador");return;}
+      renderExam();
+      el.form.style.display="block"; el.submit.style.display="inline-block";
+      startTimer();
+    };
 
-function downloadResult(code){
-  const data = localStorage.getItem("exam_"+code);
-  if(!data){ alert("No hay resultados guardados."); return; }
-  const blob = new Blob([`Resultado Examen Psicométrico\nCandidato: ${code}\nDatos: ${data}`], {type:"text/plain"});
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `resultado_${code}.txt`;
-  link.click();
-}
-</script>
+    el.submit.onclick=()=>submitExam(false);
+
+    function submitExam(auto){
+      clearInterval(tick);
+      const code=el.code.value.trim();
+      const answers=[];
+      for(let i=0;i<questions.length;i++){
+        const sel=document.querySelector(`input[name="q${i}"]:checked`);
+        answers.push(sel?sel.value:"");
+      }
+      const payload={code,fecha:new Date().toLocaleString(),respuestas:answers};
+      save(code,payload);
+
+      el.resultWrap.style.display="block";
+      el.result.innerHTML=`<h3>Examen enviado</h3>
+        <p><b>Candidato:</b> ${code}</p>
+        <p>Fecha: ${payload.fecha}</p>
+        <p>Respuestas registradas: ${answers.filter(x=>x).length} de ${questions.length}</p>`;
+
+      el.download.onclick=()=>{
+        const txt=[
+          "Resultado Examen Psicométrico – Ventas",
+          `Candidato: ${payload.code}`,
+          `Fecha: ${payload.fecha}`,
+          `Respuestas (a-d, vacío si no contestó):`,
+          payload.respuestas.join(",")
+        ].join("\n");
+        const blob=new Blob([txt],{type:"text/plain"});
+        const a=document.createElement("a");
+        a.href=URL.createObjectURL(blob);
+        a.download=`resultado_${payload.code||"sin_codigo"}.txt`;
+        a.click();
+      };
+    }
+  </script>
 </body>
 </html>
+
+
