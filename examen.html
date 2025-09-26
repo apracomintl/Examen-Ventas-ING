@@ -27,9 +27,6 @@
     .muted{color:var(--muted)}
     .result{background:#eef6ff;border:1px solid #dbeafe;border-radius:10px;padding:14px}
     footer{padding:18px;text-align:center;color:var(--muted);font-size:0.9rem}
-    @media (min-width:760px){
-      main{padding:0 32px 48px}
-    }
   </style>
 </head>
 <body>
@@ -45,7 +42,6 @@
       <input id="candidateCode" type="text" placeholder="Ingresa tu clave (ej. ID interno)" autocomplete="off" />
       <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
         <button id="startBtn" class="btn">Iniciar examen</button>
-        <button id="clearLocalBtn" class="btn btn-muted" title="Usar solo si quieres limpiar el bloqueo en este navegador">Limpiar bloqueo (local)</button>
       </div>
       <div id="timer" class="timer">Tiempo restante: 25:00</div>
       <p class="muted" style="margin:8px 0 0">Busque un lugar sin interrupciones. No recargue la página mientras realiza el examen.</p>
@@ -61,7 +57,7 @@
       <div class="result" id="result"></div>
       <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
         <button id="downloadBtn" class="btn">Descargar resultado (.txt)</button>
-        <button id="resetBtn" class="btn btn-muted">Nuevo candidato (desbloquear formulario)</button>
+        <button id="resetBtn" class="btn btn-muted">Nuevo candidato (solo interfaz)</button>
       </div>
     </div>
   </main>
@@ -255,7 +251,6 @@ const questions = [
 const el = {
   code: document.getElementById('candidateCode'),
   startBtn: document.getElementById('startBtn'),
-  clearLocalBtn: document.getElementById('clearLocalBtn'),
   timer: document.getElementById('timer'),
   form: document.getElementById('examForm'),
   submitBtn: document.getElementById('submitBtn'),
@@ -265,33 +260,25 @@ const el = {
   resetBtn: document.getElementById('resetBtn')
 };
 
-/* ================ Render preguntas ================ */
 function renderExam(){
   el.form.innerHTML = '';
   questions.forEach((item, idx) => {
     const div = document.createElement('div');
     div.className = 'question';
     div.innerHTML = `<p><strong>${item.q}</strong></p>`;
-    // show options in given order (already mixed for personality)
     item.opts.forEach(opt => {
-      // determine letter (first char before ') ' or first char before ')')
-      const letter = opt.trim().charAt(0); // e.g. 'a'
+      const letter = opt.trim().charAt(0);
       div.innerHTML += `<label class="option"><input type="radio" name="q${idx}" value="${letter}"> <span>${opt}</span></label>`;
     });
     el.form.appendChild(div);
   });
 }
 
-/* ================ Timer ================ */
 const TOTAL_SECONDS = 25 * 60;
 let timeLeft = TOTAL_SECONDS;
 let timerInterval = null;
 
-function fmt(s){
-  const m = Math.floor(s/60), sec = s%60;
-  return `${m}:${sec<10?'0':''}${sec}`;
-}
-
+function fmt(s){ const m=Math.floor(s/60),sec=s%60; return `${m}:${sec<10?'0':''}${sec}`; }
 function startTimer(){
   el.timer.textContent = `Tiempo restante: ${fmt(timeLeft)}`;
   timerInterval = setInterval(()=>{
@@ -302,134 +289,75 @@ function startTimer(){
     } else {
       el.timer.textContent = `Tiempo restante: ${fmt(timeLeft)}`;
     }
-  }, 1000);
+  },1000);
 }
 
-/* ================ LocalStorage helpers ================ */
 function storageKey(code){ return `exam_${code}`; }
 function codeUsed(code){ return localStorage.getItem(storageKey(code)) !== null; }
-function saveResult(code, payload){ localStorage.setItem(storageKey(code), JSON.stringify(payload)); }
-function clearResult(code){ localStorage.removeItem(storageKey(code)); }
+function saveResult(code,payload){ localStorage.setItem(storageKey(code), JSON.stringify(payload)); }
 
-/* Prevent accidental close */
-window.addEventListener('beforeunload', (e) => {
-  if(el.form.style.display !== 'none'){
-    e.preventDefault();
-    e.returnValue = '';
-  }
+window.addEventListener('beforeunload', (e)=>{
+  if(el.form.style.display !== 'none'){ e.preventDefault(); e.returnValue=''; }
 });
 
-/* ================ Flow ================ */
 el.startBtn.addEventListener('click', ()=>{
   const code = el.code.value.trim();
   if(!code){ alert('Por favor ingresa tu código personal antes de iniciar.'); return; }
-  if(codeUsed(code)){ alert('Este examen ya fue contestado con esta clave en este navegador. Si consideras que esto es un error, usa "Limpiar bloqueo (local)" o contacta al reclutador.'); return; }
+  if(codeUsed(code)){ alert('Este examen ya fue contestado con esta clave en este navegador.'); return; }
   renderExam();
-  el.form.style.display = 'block';
-  el.submitBtn.style.display = 'inline-block';
-  el.startBtn.disabled = true;
-  el.clearLocalBtn.disabled = true;
-  el.code.disabled = true;
+  el.form.style.display='block';
+  el.submitBtn.style.display='inline-block';
+  el.startBtn.disabled=true;
+  el.code.disabled=true;
   timeLeft = TOTAL_SECONDS;
   startTimer();
 });
 
-el.clearLocalBtn.addEventListener('click', ()=>{
-  const code = el.code.value.trim();
-  if(!code){ alert('Ingresa primero la clave que quieres limpiar.'); return; }
-  if(confirm(`¿Borrar el registro local de la clave "${code}" en este navegador? Esto permite repetir el examen desde este mismo equipo.`)){
-    clearResult(code);
-    alert('Registro local borrado. Ahora la clave puede usarse otra vez en este navegador.');
-  }
-});
-
-/* Enviar examen */
 el.submitBtn.addEventListener('click', ()=> submitExam(false));
 
 function submitExam(autoSubmitted){
-  // stop timer
   if(timerInterval) clearInterval(timerInterval);
-
   const code = el.code.value.trim();
-  if(!code){ alert('Código no encontrado.'); return; }
-
-  // recoger respuestas
-  const answers = [];
-  for(let i=0; i<questions.length; i++){
-    const sel = document.querySelector(`input[name="q${i}"]:checked`);
-    answers.push(sel ? sel.value : '');
+  const answers=[];
+  for(let i=0;i<questions.length;i++){
+    const sel=document.querySelector(`input[name="q${i}"]:checked`);
+    answers.push(sel?sel.value:'');
   }
-
-  // payload (guardamos todo en localStorage para registro interno)
-  const payload = {
-    code,
-    dateISO: new Date().toISOString(),
-    dateLocal: new Date().toLocaleString(),
-    autoSubmitted: !!autoSubmitted,
-    responses: answers // array length 45 with letters or ""
-  };
-
-  // guardar bloqueo
-  saveResult(code, payload);
-
-  // mostrar confirmación (sin puntaje)
-  el.resultWrap.style.display = 'block';
-  el.result.innerHTML = `
-    <h3 style="margin:0 0 8px;">Examen enviado</h3>
-    <p><strong>Código:</strong> ${payload.code}</p>
-    <p><strong>Fecha:</strong> ${payload.dateLocal}</p>
-    <p class="muted">Se registraron ${answers.filter(a=>a).length} respuestas de ${questions.length}. Descarga el comprobante y envíalo al reclutador.</p>
-  `;
-
-  // ocultar formulario para prevenir reintento
-  el.form.style.display = 'none';
-  el.submitBtn.style.display = 'none';
-  el.startBtn.disabled = false;
-  el.code.disabled = false;
-  el.clearLocalBtn.disabled = false;
+  const payload={ code, dateISO:new Date().toISOString(), dateLocal:new Date().toLocaleString(), autoSubmitted:!!autoSubmitted, responses:answers };
+  saveResult(code,payload);
+  el.resultWrap.style.display='block';
+  el.result.innerHTML=`<h3>Examen enviado</h3><p><strong>Código:</strong> ${payload.code}</p><p><strong>Fecha:</strong> ${payload.dateLocal}</p><p class="muted">Se registraron ${answers.filter(a=>a).length} respuestas de ${questions.length}. Descarga el comprobante y envíalo al reclutador.</p>`;
+  el.form.style.display='none'; el.submitBtn.style.display='none';
 }
 
-/* Descargar .txt que solo contiene código, fecha y respuestas (sin puntaje) */
-document.getElementById('downloadBtn').addEventListener('click', ()=>{
+el.downloadBtn.addEventListener('click', ()=>{
   const code = el.code.value.trim();
   const stored = localStorage.getItem(storageKey(code));
-  if(!stored){ alert('No se encontraron resultados guardados para esta clave en este navegador.'); return; }
-  const payload = JSON.parse(stored);
-  // build text with "1:a, 2:b, ..." format
-  const lines = [];
+  if(!stored){ alert('No se encontraron resultados.'); return; }
+  const payload=JSON.parse(stored);
+  const lines=[];
   lines.push('Resultado Examen Psicométrico – Asesor Comercial de Ingredientes');
   lines.push(`Candidato: ${payload.code}`);
-  lines.push(`Fecha: ${payload.dateLocal}`);
-  lines.push('');
-  lines.push('Respuestas (pregunta:respuesta) — vacío si no contestó:');
-  const pairs = payload.responses.map((r,i)=> `${i+1}:${r||''}`);
-  // group in a few lines for readability (5 per line)
-  for(let i=0;i<pairs.length;i+=5){
-    lines.push(pairs.slice(i,i+5).join('  |  '));
-  }
-  const blob = new Blob([lines.join('\n')], {type:'text/plain'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `resultado_${payload.code||'sin_codigo'}.txt`;
-  a.click();
+  lines.push(`Fecha: ${payload.dateLocal}`); lines.push('');
+  lines.push('Respuestas (pregunta:respuesta):');
+  const pairs=payload.responses.map((r,i)=>`${i+1}:${r||''}`);
+  for(let i=0;i<pairs.length;i+=5){ lines.push(pairs.slice(i,i+5).join('  |  ')); }
+  const blob=new Blob([lines.join('\n')],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=`resultado_${payload.code||'sin_codigo'}.txt`; a.click();
 });
 
-/* Reset / permitir siguiente candidato (solo UI, el bloqueo local sigue) */
-document.getElementById('resetBtn').addEventListener('click', ()=>{
-  el.resultWrap.style.display = 'none';
-  el.code.value = '';
-  el.form.style.display = 'none';
-  el.submitBtn.style.display = 'none';
-  timeLeft = TOTAL_SECONDS;
-  el.timer.textContent = `Tiempo restante: ${fmt(timeLeft)}`;
+el.resetBtn.addEventListener('click', ()=>{
+  el.resultWrap.style.display='none';
+  el.code.value=''; el.form.style.display='none'; el.submitBtn.style.display='none';
+  timeLeft=TOTAL_SECONDS; el.timer.textContent=`Tiempo restante: ${fmt(timeLeft)}`;
 });
 
-/* Inicial */
-el.timer.textContent = `Tiempo restante: ${fmt(TOTAL_SECONDS)}`;
-
+el.timer.textContent=`Tiempo restante: ${fmt(TOTAL_SECONDS)}`;
 </script>
 </body>
 </html>
+
 
 
 
