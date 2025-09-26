@@ -234,116 +234,92 @@ const questions = [
 
 /* ================ UI refs ================ */
 const el = {
-  code: document.getElementById('candidateCode'),
-  startBtn: document.getElementById('startBtn'),
-  timer: document.getElementById('timer'),
-  form: document.getElementById('examForm'),
-  submitBtn: document.getElementById('submitBtn'),
-  resultWrap: document.getElementById('resultWrap'),
-  result: document.getElementById('result'),
-  downloadBtn: document.getElementById('downloadBtn'),
-  resetBtn: document.getElementById('resetBtn')
-};
+      code: document.getElementById('candidateCode'),
+      start: document.getElementById('startBtn'),
+      timer: document.getElementById('timer'),
+      form: document.getElementById('examForm'),
+      submit: document.getElementById('submitBtn'),
+      resultWrap: document.getElementById('resultWrap'),
+      result: document.getElementById('result'),
+      download: document.getElementById('downloadBtn'),
+    };
 
-function renderExam(){
-  el.form.innerHTML = '';
-  questions.forEach((item, idx) => {
-    const div = document.createElement('div');
-    div.className = 'question';
-    div.innerHTML = `<p><strong>${item.q}</strong></p>`;
-    item.opts.forEach(opt => {
-      const letter = opt.trim().charAt(0);
-      div.innerHTML += `<label class="option"><input type="radio" name="q${idx}" value="${letter}"> <span>${opt}</span></label>`;
-    });
-    el.form.appendChild(div);
-  });
-}
-
-const TOTAL_SECONDS = 25 * 60;
-let timeLeft = TOTAL_SECONDS;
-let timerInterval = null;
-
-function fmt(s){ const m=Math.floor(s/60),sec=s%60; return `${m}:${sec<10?'0':''}${sec}`; }
-function startTimer(){
-  el.timer.textContent = `Tiempo restante: ${fmt(timeLeft)}`;
-  timerInterval = setInterval(()=>{
-    timeLeft--;
-    if(timeLeft < 0){
-      clearInterval(timerInterval);
-      submitExam(true);
-    } else {
-      el.timer.textContent = `Tiempo restante: ${fmt(timeLeft)}`;
+    // Render
+    function renderExam(){
+      el.form.innerHTML="";
+      questions.forEach((item,i)=>{
+        const div=document.createElement('div');
+        div.className="question";
+        div.innerHTML=`<p>${item.q}</p>`;
+        item.opts.forEach(opt=>{
+          const v=opt.charAt(0);
+          div.innerHTML+=`<label class="option"><input type="radio" name="q${i}" value="${v}"/> ${opt}</label>`;
+        });
+        el.form.appendChild(div);
+      });
     }
-  },1000);
-}
 
-function storageKey(code){ return `exam_${code}`; }
-function codeUsed(code){ return localStorage.getItem(storageKey(code)) !== null; }
-function saveResult(code,payload){ localStorage.setItem(storageKey(code), JSON.stringify(payload)); }
+    // Timer
+    const TOTAL=25*60; let left=TOTAL; let tick;
+    function startTimer(){
+      el.timer.textContent=`Tiempo restante: ${fmt(left)}`;
+      tick=setInterval(()=>{
+        left--; el.timer.textContent=`Tiempo restante: ${fmt(left)}`;
+        if(left<=0){ clearInterval(tick); submitExam(true); }
+      },1000);
+    }
+    function fmt(s){const m=Math.floor(s/60),sec=s%60;return `${m}:${sec<10?"0":""}${sec}`;}
 
-window.addEventListener('beforeunload', (e)=>{
-  if(el.form.style.display !== 'none'){ e.preventDefault(); e.returnValue=''; }
-});
+    // Un solo intento
+    function used(code){return localStorage.getItem("exam_"+code)!=null;}
+    function save(code,data){localStorage.setItem("exam_"+code,JSON.stringify(data));}
 
-el.startBtn.addEventListener('click', ()=>{
-  const code = el.code.value.trim();
-  if(!code){ alert('Por favor ingresa tu código personal antes de iniciar.'); return; }
-  if(codeUsed(code)){ alert('Este examen ya fue contestado con esta clave en este navegador.'); return; }
-  renderExam();
-  el.form.style.display='block';
-  el.submitBtn.style.display='inline-block';
-  el.startBtn.disabled=true;
-  el.code.disabled=true;
-  timeLeft = TOTAL_SECONDS;
-  startTimer();
-});
+    el.start.onclick=()=>{
+      const code=el.code.value.trim();
+      if(!code){alert("Ingrese su código");return;}
+      if(used(code)){alert("Ya se contestó con esta clave en este navegador");return;}
+      renderExam();
+      el.form.style.display="block"; el.submit.style.display="inline-block";
+      startTimer();
+    };
 
-el.submitBtn.addEventListener('click', ()=> submitExam(false));
+    el.submit.onclick=()=>submitExam(false);
 
-function submitExam(autoSubmitted){
-  if(timerInterval) clearInterval(timerInterval);
-  const code = el.code.value.trim();
-  const answers=[];
-  for(let i=0;i<questions.length;i++){
-    const sel=document.querySelector(`input[name="q${i}"]:checked`);
-    answers.push(sel?sel.value:'');
-  }
-  const payload={ code, dateISO:new Date().toISOString(), dateLocal:new Date().toLocaleString(), autoSubmitted:!!autoSubmitted, responses:answers };
-  saveResult(code,payload);
-  el.resultWrap.style.display='block';
-  el.result.innerHTML=`<h3>Examen enviado</h3><p><strong>Código:</strong> ${payload.code}</p><p><strong>Fecha:</strong> ${payload.dateLocal}</p><p class="muted">Se registraron ${answers.filter(a=>a).length} respuestas de ${questions.length}. Descarga el comprobante y envíalo al reclutador.</p>`;
-  el.form.style.display='none'; el.submitBtn.style.display='none';
-}
+    function submitExam(auto){
+      clearInterval(tick);
+      const code=el.code.value.trim();
+      const answers=[];
+      for(let i=0;i<questions.length;i++){
+        const sel=document.querySelector(`input[name="q${i}"]:checked`);
+        answers.push(sel?sel.value:"");
+      }
+      const payload={code,fecha:new Date().toLocaleString(),respuestas:answers};
+      save(code,payload);
 
-el.downloadBtn.addEventListener('click', ()=>{
-  const code = el.code.value.trim();
-  const stored = localStorage.getItem(storageKey(code));
-  if(!stored){ alert('No se encontraron resultados.'); return; }
-  const payload=JSON.parse(stored);
-  const lines=[];
-  lines.push('Resultado Examen Psicométrico – Asesor Comercial de Ingredientes');
-  lines.push(`Candidato: ${payload.code}`);
-  lines.push(`Fecha: ${payload.dateLocal}`); lines.push('');
-  lines.push('Respuestas (pregunta:respuesta):');
-  const pairs=payload.responses.map((r,i)=>`${i+1}:${r||''}`);
-  for(let i=0;i<pairs.length;i+=5){ lines.push(pairs.slice(i,i+5).join('  |  ')); }
-  const blob=new Blob([lines.join('\n')],{type:'text/plain'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob); a.download=`resultado_${payload.code||'sin_codigo'}.txt`; a.click();
-});
+      el.resultWrap.style.display="block";
+      el.result.innerHTML=`<h3>Examen enviado</h3>
+        <p><b>Candidato:</b> ${code}</p>
+        <p>Fecha: ${payload.fecha}</p>
+        <p>Respuestas registradas: ${answers.filter(x=>x).length} de ${questions.length}</p>`;
 
-el.resetBtn.addEventListener('click', ()=>{
-  el.resultWrap.style.display='none';
-  el.code.value=''; el.form.style.display='none'; el.submitBtn.style.display='none';
-  timeLeft=TOTAL_SECONDS; el.timer.textContent=`Tiempo restante: ${fmt(timeLeft)}`;
-});
-
-el.timer.textContent=`Tiempo restante: ${fmt(TOTAL_SECONDS)}`;
-</script>
+      el.download.onclick=()=>{
+        const txt=[
+          "Resultado Examen Psicométrico – Ventas",
+          `Candidato: ${payload.code}`,
+          `Fecha: ${payload.fecha}`,
+          `Respuestas (a-d, vacío si no contestó):`,
+          payload.respuestas.join(",")
+        ].join("\n");
+        const blob=new Blob([txt],{type:"text/plain"});
+        const a=document.createElement("a");
+        a.href=URL.createObjectURL(blob);
+        a.download=`resultado_${payload.code||"sin_codigo"}.txt`;
+        a.click();
+      };
+    }
+  </script>
 </body>
 </html>
-
-
 
 
 
