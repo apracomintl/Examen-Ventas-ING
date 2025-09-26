@@ -1,70 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <title>Examen Psicométrico – Asesor Comercial de Ingredientes</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <title>Examen Psicométrico - Ventas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root{
-      --bg:#f7fafc; --card:#ffffff; --text:#0f172a; --muted:#6b7280; --accent:#0ea5e9; --danger:#dc2626;
-    }
-    *{box-sizing:border-box}
-    body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
-    header{position:relative;padding:20px 16px;text-align:center}
-    header img{position:absolute;right:18px;top:12px;height:56px;object-fit:contain;border-radius:6px}
-    h1{margin:0;font-size:1.4rem}
-    h2{margin:6px 0 0;color:var(--muted);font-weight:500;font-size:0.95rem}
-    main{max-width:980px;margin:18px auto;padding:0 16px 48px}
-    .card{background:var(--card);border-radius:12px;box-shadow:0 10px 24px rgba(2,6,23,0.06);padding:18px;margin-bottom:16px}
-    label{display:block;font-weight:600;margin-bottom:6px}
-    input[type="text"]{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e6eef3;font-size:1rem}
-    .btn{display:inline-flex;align-items:center;gap:8px;border:0;background:var(--accent);color:#fff;padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:700}
-    .btn-muted{background:#e6eef3;color:#111}
-    .timer{ text-align:center;font-weight:700;color:var(--danger);margin:8px 0 16px;font-size:1.05rem }
-    .section-title{font-size:1rem;margin:6px 0 12px;color:var(--muted);font-weight:700}
-    .question{padding:12px;border:1px solid #eef2f7;border-radius:10px;margin-bottom:12px;background:#fff}
-    .option{display:flex;gap:10px;align-items:flex-start;margin:6px 0}
-    .muted{color:var(--muted)}
-    .result{background:#eef6ff;border:1px solid #dbeafe;border-radius:10px;padding:14px}
-    footer{padding:18px;text-align:center;color:var(--muted);font-size:0.9rem}
+    :root { --bg:#f9fafb; --card:#ffffff; --ink:#111827; --muted:#6b7280; --accent:#2563eb; --warn:#dc2626; }
+    body { font-family: system-ui, Arial, sans-serif; margin:0; background:var(--bg); color:var(--ink); }
+    header { padding:20px 16px; text-align:center; position:relative; }
+    header img { position:absolute; top:15px; right:20px; height:50px; }
+    h1 { margin:0 0 6px; font-size:1.4rem; }
+    h2 { margin:6px 0 0; font-weight:500; color:var(--muted); font-size:0.95rem; }
+    main { max-width:900px; margin:0 auto; padding:0 16px 48px; }
+    .card { background:var(--card); border-radius:14px; box-shadow:0 10px 25px rgba(0,0,0,.05); padding:18px; margin-bottom:16px; }
+    label { display:inline-block; margin-bottom:6px; font-weight:600; }
+    input[type="text"] { width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px; font-size:1rem; }
+    .btn { display:inline-flex; align-items:center; gap:8px; border:0; background:var(--accent); color:#fff; padding:10px 16px; border-radius:10px; cursor:pointer; font-weight:600; }
+    .btn-secondary { background:#111827; }
+    .btn-muted { background:#e5e7eb; color:#111827; }
+    .timer { text-align:center; font-weight:700; color:var(--warn); margin:8px 0 16px; font-size:1.05rem; }
+    .section-title { font-size:1rem; margin:6px 0 12px; color:var(--muted); font-weight:700; }
+    .question { padding:14px; border:1px solid #eef2f7; border-radius:12px; margin-bottom:12px; background:#fff; }
+    .option { display:flex; gap:10px; margin:6px 0; }
+    .result { background:#eef6ff; border:1px solid #dbeafe; border-radius:12px; padding:16px; }
   </style>
 </head>
 <body>
   <header>
     <h1>Examen Psicométrico – Asesor Comercial de Ingredientes</h1>
-    <h2>Tiempo límite: 25 minutos • 1 intento por clave </h2>
+    <h2>Tiempo límite: 25 minutos • 1 intento por clave</h2>
     <img src="APRACOM Internacional.jpg" alt="Logo Apracom Internacional" />
   </header>
 
   <main>
     <div class="card">
       <label for="candidateCode">Código personal del candidato</label>
-      <input id="candidateCode" type="text" placeholder="Ingresa tu clave (ej. ID interno)" autocomplete="off" />
-      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-        <button id="startBtn" class="btn">Iniciar examen</button>
-      </div>
+      <input id="candidateCode" type="text" placeholder="Ingresa tu clave" />
+      <button id="startBtn" class="btn" style="margin-top:10px;">Iniciar examen</button>
       <div id="timer" class="timer">Tiempo restante: 25:00</div>
-      <p class="muted" style="margin:8px 0 0">Busque un lugar sin interrupciones. No recargue la página mientras realiza el examen.</p>
     </div>
 
     <form id="examForm" style="display:none;"></form>
-
-    <div style="display:flex;justify-content:flex-end;gap:8px;">
-      <button id="submitBtn" class="btn" style="display:none;background:#111827">Enviar examen</button>
-    </div>
+    <button id="submitBtn" type="button" class="btn btn-secondary" style="display:none;">Enviar examen</button>
 
     <div id="resultWrap" class="card" style="display:none;">
       <div class="result" id="result"></div>
-      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-        <button id="downloadBtn" class="btn">Descargar resultado (.txt)</button>
-        <button id="resetBtn" class="btn btn-muted">Nuevo candidato (solo interfaz)</button>
-      </div>
+      <button id="downloadBtn" class="btn" style="margin-top:10px;">Descargar resultado (.txt)</button>
     </div>
   </main>
 
-  <footer>© APRACOM Internacional — Uso interno para selección de personal</footer>
-
-<script>
+  <script>
 /* =============================
    Banco de preguntas (45 total)
    Parte I: primeras 20 = cognitivas (con opciones)
@@ -357,6 +342,7 @@ el.timer.textContent=`Tiempo restante: ${fmt(TOTAL_SECONDS)}`;
 </script>
 </body>
 </html>
+
 
 
 
