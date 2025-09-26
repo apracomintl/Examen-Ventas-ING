@@ -1,184 +1,435 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Examen Psicométrico - Ventas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" />
+  <title>Examen Psicométrico – Asesor Comercial de Ingredientes</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    :root { --bg:#f9fafb; --card:#ffffff; --ink:#111827; --muted:#6b7280; --accent:#2563eb; --warn:#dc2626; }
-    body { font-family: system-ui, Arial, sans-serif; margin:0; background:var(--bg); color:var(--ink); }
-    header { padding:20px 16px; text-align:center; position:relative; }
-    header img { position:absolute; top:15px; right:20px; height:50px; }
-    h1 { margin:0 0 6px; font-size:1.4rem; }
-    h2 { margin:6px 0 0; font-weight:500; color:var(--muted); font-size:0.95rem; }
-    main { max-width:900px; margin:0 auto; padding:0 16px 48px; }
-    .card { background:var(--card); border-radius:14px; box-shadow:0 10px 25px rgba(0,0,0,.05); padding:18px; margin-bottom:16px; }
-    label { display:inline-block; margin-bottom:6px; font-weight:600; }
-    input[type="text"] { width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px; font-size:1rem; }
-    .btn { display:inline-flex; align-items:center; gap:8px; border:0; background:var(--accent); color:#fff; padding:10px 16px; border-radius:10px; cursor:pointer; font-weight:600; }
-    .btn-secondary { background:#111827; }
-    .btn-muted { background:#e5e7eb; color:#111827; }
-    .timer { text-align:center; font-weight:700; color:var(--warn); margin:8px 0 16px; font-size:1.05rem; }
-    .section-title { font-size:1rem; margin:6px 0 12px; color:var(--muted); font-weight:700; }
-    .question { padding:14px; border:1px solid #eef2f7; border-radius:12px; margin-bottom:12px; background:#fff; }
-    .option { display:flex; gap:10px; margin:6px 0; }
-    .result { background:#eef6ff; border:1px solid #dbeafe; border-radius:12px; padding:16px; }
+    :root{
+      --bg:#f7fafc; --card:#ffffff; --text:#0f172a; --muted:#6b7280; --accent:#0ea5e9; --danger:#dc2626;
+    }
+    *{box-sizing:border-box}
+    body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
+    header{position:relative;padding:20px 16px;text-align:center}
+    header img{position:absolute;right:18px;top:12px;height:56px;object-fit:contain;border-radius:6px}
+    h1{margin:0;font-size:1.4rem}
+    h2{margin:6px 0 0;color:var(--muted);font-weight:500;font-size:0.95rem}
+    main{max-width:980px;margin:18px auto;padding:0 16px 48px}
+    .card{background:var(--card);border-radius:12px;box-shadow:0 10px 24px rgba(2,6,23,0.06);padding:18px;margin-bottom:16px}
+    label{display:block;font-weight:600;margin-bottom:6px}
+    input[type="text"]{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e6eef3;font-size:1rem}
+    .btn{display:inline-flex;align-items:center;gap:8px;border:0;background:var(--accent);color:#fff;padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:700}
+    .btn-muted{background:#e6eef3;color:#111}
+    .timer{ text-align:center;font-weight:700;color:var(--danger);margin:8px 0 16px;font-size:1.05rem }
+    .section-title{font-size:1rem;margin:6px 0 12px;color:var(--muted);font-weight:700}
+    .question{padding:12px;border:1px solid #eef2f7;border-radius:10px;margin-bottom:12px;background:#fff}
+    .option{display:flex;gap:10px;align-items:flex-start;margin:6px 0}
+    .muted{color:var(--muted)}
+    .result{background:#eef6ff;border:1px solid #dbeafe;border-radius:10px;padding:14px}
+    footer{padding:18px;text-align:center;color:var(--muted);font-size:0.9rem}
+    @media (min-width:760px){
+      main{padding:0 32px 48px}
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Examen Psicométrico – Representante de Ventas</h1>
-    <h2>Tiempo límite: 20 minutos • 1 intento por clave</h2>
+    <h1>Examen Psicométrico – Asesor Comercial de Ingredientes</h1>
+    <h2>Tiempo límite: 25 minutos • 1 intento por clave (en este navegador)</h2>
     <img src="APRACOM Internacional.jpg" alt="Logo Apracom Internacional" />
   </header>
 
   <main>
     <div class="card">
       <label for="candidateCode">Código personal del candidato</label>
-      <input id="candidateCode" type="text" placeholder="Ingresa tu clave" />
-      <button id="startBtn" class="btn" style="margin-top:10px;">Iniciar examen</button>
-      <div id="timer" class="timer">Tiempo restante: 20:00</div>
+      <input id="candidateCode" type="text" placeholder="Ingresa tu clave (ej. ID interno)" autocomplete="off" />
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button id="startBtn" class="btn">Iniciar examen</button>
+        <button id="clearLocalBtn" class="btn btn-muted" title="Usar solo si quieres limpiar el bloqueo en este navegador">Limpiar bloqueo (local)</button>
+      </div>
+      <div id="timer" class="timer">Tiempo restante: 25:00</div>
+      <p class="muted" style="margin:8px 0 0">Busque un lugar sin interrupciones. No recargue la página mientras realiza el examen.</p>
     </div>
 
     <form id="examForm" style="display:none;"></form>
-    <button id="submitBtn" type="button" class="btn btn-secondary" style="display:none;">Enviar examen</button>
+
+    <div style="display:flex;justify-content:flex-end;gap:8px;">
+      <button id="submitBtn" class="btn" style="display:none;background:#111827">Enviar examen</button>
+    </div>
 
     <div id="resultWrap" class="card" style="display:none;">
       <div class="result" id="result"></div>
-      <button id="downloadBtn" class="btn" style="margin-top:10px;">Descargar resultado (.txt)</button>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button id="downloadBtn" class="btn">Descargar resultado (.txt)</button>
+        <button id="resetBtn" class="btn btn-muted">Nuevo candidato (desbloquear formulario)</button>
+      </div>
     </div>
   </main>
 
-  <script>
-    // ---------------------------
-    // Preguntas (30 ítems del examen)
-    // ---------------------------
-    const questions = [
-      // Razonamiento Verbal (5)
-      {q:"1. ¿Cuál es el sinónimo de 'proactivo'?", opts:["a) Reactivo","b) Dinámico","c) Pasivo","d) Indiferente"]},
-      {q:"2. Complete la analogía: Vender es a cliente como enseñar es a...", opts:["a) Alumno","b) Maestro","c) Escuela","d) Libro"]},
-      {q:"3. ¿Qué palabra no pertenece al grupo?", opts:["a) Negociar","b) Convencer","c) Persuadir","d) Descansar"]},
-      {q:"4. ¿Qué significa 'empatía' en el contexto laboral?", opts:["a) Imponer la propia opinión","b) Comprender a los demás","c) Evitar conflictos","d) Ser competitivo"]},
-      {q:"5. En ventas, 'objeción' significa:", opts:["a) Una negativa del cliente","b) Una compra inmediata","c) Una recomendación","d) Una promoción especial"]},
+  <footer>© APRACOM Internacional — Uso interno para selección de personal</footer>
 
-      // Razonamiento Numérico (5)
-      {q:"6. Si un producto cuesta $250 y se ofrece un 20% de descuento, ¿cuál es el precio final?", opts:["a) $250","b) $225","c) $200","d) $180"]},
-      {q:"7. Si un vendedor gana el 10% de comisión sobre una venta de $15,000, ¿cuánto gana?", opts:["a) $1000","b) $1200","c) $1500","d) $2000"]},
-      {q:"8. Si en un mes vendió 120 unidades y el siguiente mes 150, ¿qué porcentaje de incremento tuvo?", opts:["a) 20%","b) 25%","c) 30%","d) 35%"]},
-      {q:"9. En una meta trimestral de $300,000, si ya vendió $180,000, ¿qué porcentaje falta por cubrir?", opts:["a) 30%","b) 35%","c) 40%","d) 45%"]},
-      {q:"10. Si un cliente compra 3 productos de $450 cada uno, ¿cuál es el total con IVA (16%)?", opts:["a) $1350","b) $1485","c) $1566","d) $1570"]},
+<script>
+/* =============================
+   Banco de preguntas (45 total)
+   Parte I: primeras 20 = cognitivas (con opciones)
+   Parte II: siguientes 25 = personalidad (opciones barajadas)
+   ============================= */
 
-      // Razonamiento Lógico (5)
-      {q:"11. Todos los representantes de ventas son persuasivos. Algunos persuasivos son creativos. Entonces:", opts:["a) Todos los creativos son representantes de ventas","b) Algunos representantes de ventas son creativos","c) Ningún creativo es persuasivo","d) Algunos creativos no son persuasivos"]},
-      {q:"12. Si A > B, B > C, entonces:", opts:["a) A < C","b) A = B","c) A > C","d) C > A"]},
-      {q:"13. Serie: 2, 4, 8, 16, ?", opts:["a) 18","b) 24","c) 32","d) 36"]},
-      {q:"14. Serie: 3, 6, 9, 12, ?", opts:["a) 15","b) 16","c) 18","d) 20"]},
-      {q:"15. Si hoy es miércoles, ¿qué día será dentro de 10 días?", opts:["a) Viernes","b) Domingo","c) Sábado","d) Lunes"]},
+const questions = [
+  // Parte I - Cognitivas (20)
+  {q:"1. ¿Cuál es el antónimo de 'expansivo'?", opts:["a) Abierto","b) Reservado","c) Generoso","d) Extrovertido"]},
+  {q:"2. ¿Cuál es el sinónimo de 'persuasivo'?", opts:["a) Convincente","b) Débil","c) Pasivo","d) Indiferente"]},
+  {q:"3. Complete la analogía: Ingrediente es a receta como ladrillo es a...", opts:["a) Construcción","b) Pintura","c) Carpintería","d) Decoración"]},
+  {q:"4. ¿Qué palabra no pertenece al grupo?", opts:["a) Vender","b) Negociar","c) Comprar","d) Dormir"]},
+  {q:"5. En el contexto comercial, 'prospecto' significa:", opts:["a) Producto terminado","b) Cliente potencial","c) Informe financiero","d) Contrato firmado"]},
+  {q:"6. Si un ingrediente cuesta $80 y se compra en volumen con 15% de descuento, ¿cuál es el precio unitario?", opts:["a) $68","b) $72","c) $74","d) $78"]},
+  {q:"7. Una comisión del 12% sobre una venta de $25,000 equivale a:", opts:["a) $2,500","b) $2,800","c) $3,000","d) $3,200"]},
+  {q:"8. Si en enero se vendieron 400 kg de producto y en febrero 520 kg, ¿qué incremento porcentual hubo?", opts:["a) 25%","b) 28%","c) 30%","d) 32%"]},
+  {q:"9. En una meta anual de $1,200,000, si ya se lograron $750,000, ¿qué porcentaje falta por cubrir?", opts:["a) 30%","b) 35%","c) 37.5%","d) 40%"]},
+  {q:"10. Si un cliente compra 25 sacos de $320 cada uno, ¿cuál es el total con IVA (16%)?", opts:["a) $8,000","b) $9,200","c) $9,280","d) $9,280 + IVA"]},
+  {q:"11. Todos los ingredientes naturales son orgánicos. Algunos ingredientes importados son naturales. Entonces:", opts:["a) Todos los importados son orgánicos","b) Algunos importados son orgánicos","c) Ningún importado es orgánico","d) No se puede concluir"]},
+  {q:"12. Si A > B, B > C, y C > D, entonces:", opts:["a) A > D","b) A < D","c) D > A","d) No se puede concluir"]},
+  {q:"13. Serie: 5, 10, 20, 40, ?", opts:["a) 45","b) 60","c) 80","d) 100"]},
+  {q:"14. Serie: 9, 12, 15, 18, ?", opts:["a) 19","b) 20","c) 21","d) 22"]},
+  {q:"15. Si hoy es lunes, ¿qué día será dentro de 15 días?", opts:["a) Miércoles","b) Jueves","c) Lunes","d) Martes"]},
+  {q:"16. Todos los asesores comerciales conocen sus productos. Pedro es asesor comercial. Entonces:", opts:["a) Pedro no conoce sus productos","b) Pedro sí conoce sus productos","c) Pedro es cliente","d) No se puede concluir"]},
+  {q:"17. Si un saco de harina rinde 50 piezas y se necesitan 600 piezas, ¿cuántos sacos se requieren?", opts:["a) 10","b) 11","c) 12","d) 13"]},
+  {q:"18. Si un asesor visita a 4 clientes por día, ¿cuántas visitas realiza en 5 días hábiles?", opts:["a) 15","b) 18","c) 20","d) 25"]},
+  {q:"19. ¿Qué número continúa en la serie: 3, 6, 12, 24, ...?", opts:["a) 36","b) 42","c) 48","d) 50"]},
+  {q:"20. Un cliente pide 8 costales de $150 más IVA. ¿Cuál es el total a pagar?", opts:["a) $1,200","b) $1,250","c) $1,392","d) $1,400"]},
 
-      // Personalidad y Competencias (15)
-      {q:"16. Durante una reunión con un cliente cambiante, usted tiende a:", opts:["a) Frustrarse pero adaptarse","b) Mostrar molestia","c) Detener la reunión","d) Seguir con su propuesta inicial"]},
-      {q:"17. ¿Qué frase refleja mejor su visión de ventas?", opts:["a) Insistir siempre funciona","b) Entender al cliente es lo más importante","c) Vender depende de la suerte","d) Nunca dejar ir oportunidades"]},
-      {q:"18. Un cliente lanza una crítica injustificada. Usted:", opts:["a) Se defiende","b) Pide detalles específicos","c) Cierra la conversación","d) Se disculpa sin culpa"]},
-      {q:"19. ¿Qué lo describe mejor?", opts:["a) Actúo según surja","b) Anticipo y planifico","c) Me enfoco en lo urgente","d) Necesito guía constante"]},
-      {q:"20. ¿Qué lo motiva más a cumplir metas?", opts:["a) Reconocimiento y crecimiento","b) Evitar sanciones","c) Buena suerte con clientes","d) No me interesan mucho"]},
-      {q:"21. ¿Por qué eligió ventas?", opts:["a) Dinero rápido","b) Interés en personas y dinamismo","c) No sabía qué más hacer","d) Es un trabajo más"]},
-      {q:"22. Con muchas tareas al mismo tiempo usted:", opts:["a) Le cuesta pero se organiza","b) Prioriza desde el inicio","c) Se distrae","d) Evita lo abrumador"]},
-      {q:"23. Actitud ante un compañero que necesita ayuda:", opts:["a) Solo si no me afecta","b) Colaboro activamente","c) No es mi problema","d) Que pida ayuda al jefe"]},
-      {q:"24. En un cierre complicado usted:", opts:["a) Escucha y replantea valor","b) Repite con insistencia","c) Abandona rápido","d) Se frustra y evita"]},
-      {q:"25. La honestidad en ventas es:", opts:["a) A veces exagerada","b) Clave para la confianza","c) Solo importa si descubren","d) Relativa"]},
-      {q:"26. Cliente lo rechaza tajantemente. Usted:", opts:["a) Insiste más","b) Toma nota y contacta después","c) Lo descarta","d) Siente que no sirve"]},
-      {q:"27. Si no logra una meta de ventas:", opts:["a) Ajusta estrategia","b) Culpa a factores externos","c) Se desmotiva","d) Cambia meta sin consultar"]},
-      {q:"28. Su forma de operar en ventas es:", opts:["a) Con método claro","b) Intuición sobre estrategia","c) Solo suerte","d) Improvisar siempre"]},
-      {q:"29. Si le asignan un cliente nuevo:", opts:["a) Pide apoyo y se prepara","b) Evita contacto","c) Se queja","d) Pide reasignación"]},
-      {q:"30. La importancia de seguir aprendiendo es:", opts:["a) Clave para crecer","b) Solo si es obligatorio","c) No necesario","d) Prefiero experiencia"]},
-    ];
+  // Parte II - Personalidad (25) — respuestas mezcladas para evitar patrón
+  {q:"21. Frente a un cliente que exige resultados inmediatos, usted suele:", opts:[
+    "a) Delegar responsabilidades",
+    "b) Adaptarse con rapidez y priorizar soluciones",
+    "c) Evitar compromisos directos",
+    "d) Mostrar molestia por la presión"
+  ]},
+  {q:"22. Cuando no logra una meta mensual, lo primero que hace es:", opts:[
+    "a) Desmotivarse y rendirse",
+    "b) Analizar qué mejorar y ajustar estrategia",
+    "c) Culpar factores externos",
+    "d) Minimizar la importancia de la meta"
+  ]},
+  {q:"23. Si debe presentar un nuevo ingrediente, usted:", opts:[
+    "a) Depende de un colega",
+    "b) Se prepara con argumentos técnicos y prácticos",
+    "c) Lo omite si no lo domina",
+    "d) Lo improvisa"
+  ]},
+  {q:"24. Ante varios proyectos al mismo tiempo, usted:", opts:[
+    "a) Se dispersa con facilidad",
+    "b) Se frustra",
+    "c) Postergan algunos indefinidamente",
+    "d) Prioriza y organiza tiempos"
+  ]},
+  {q:"25. En una negociación difícil, usted tiende a:", opts:[
+    "a) Abandonar rápidamente",
+    "b) Escuchar y replantear valor",
+    "c) Aumentar la presión",
+    "d) Culpar al cliente"
+  ]},
+  {q:"26. ¿Qué lo motiva más a mejorar en ventas?", opts:[
+    "a) Solo incentivos económicos",
+    "b) No me interesa",
+    "c) Evitar sanciones",
+    "d) Reconocimiento y crecimiento profesional"
+  ]},
+  {q:"27. Cuando recibe retroalimentación negativa, usted:", opts:[
+    "a) La ignora",
+    "b) La analiza y la usa para mejorar",
+    "c) Se desmotiva",
+    "d) Se molesta y la rechaza"
+  ]},
+  {q:"28. En una reunión con varios tomadores de decisión, usted:", opts:[
+    "a) Ajusta su discurso según cada perfil",
+    "b) Se enfoca en uno solo",
+    "c) Evita exponer",
+    "d) Habla de manera general sin adaptarse"
+  ]},
+  {q:"29. Cuando se enfrenta a un cliente muy técnico, usted:", opts:[
+    "a) Cambia de tema",
+    "b) Investiga y se prepara",
+    "c) Evita la conversación técnica",
+    "d) Cede sin negociar"
+  ]},
+  {q:"30. Su visión sobre la competencia comercial es:", opts:[
+    "a) Una amenaza que lo desmotiva",
+    "b) Una oportunidad para diferenciarse",
+    "c) Una excusa para no alcanzar metas",
+    "d) Algo que no toma en cuenta"
+  ]},
+  {q:"31. Cuando tiene exceso de trabajo, usted:", opts:[
+    "a) Divide y planifica sus tareas",
+    "b) Evita responsabilidades",
+    "c) Se estresa y no actúa",
+    "d) Deja todo al final"
+  ]},
+  {q:"32. Si un cliente lo rechaza, usted:", opts:[
+    "a) Se frustra",
+    "b) Se deprime",
+    "c) Lo descarta",
+    "d) Registra y planifica un recontacto"
+  ]},
+  {q:"33. En el seguimiento post-venta, usted:", opts:[
+    "a) Mantiene contacto y continuidad",
+    "b) Lo posterga",
+    "c) Lo hace solo si se lo piden",
+    "d) Lo evita"
+  ]},
+  {q:"34. Cuando no entiende una instrucción, usted:", opts:[
+    "a) La ignora",
+    "b) Pregunta y busca claridad",
+    "c) Finge entender",
+    "d) Se bloquea"
+  ]},
+  {q:"35. Frente a una objeción inesperada, usted:", opts:[
+    "a) Evita responder",
+    "b) Escucha y responde con argumentos",
+    "c) Se molesta",
+    "d) Ignora al cliente"
+  ]},
+  {q:"36. ¿Qué valora más de un equipo de trabajo?", opts:[
+    "a) Independencia total",
+    "b) Colaboración y apoyo mutuo",
+    "c) Evitar interacción",
+    "d) Competencia interna"
+  ]},
+  {q:"37. En la planeación semanal, usted:", opts:[
+    "a) Deja todo al azar",
+    "b) Solo reacciona a urgencias",
+    "c) No planea",
+    "d) Define metas claras y prioridades"
+  ]},
+  {q:"38. Cuando un compañero le pide apoyo en su cierre, usted:", opts:[
+    "a) Se queja",
+    "b) Colabora activamente",
+    "c) Lo ignora",
+    "d) Le dice que pida ayuda a su jefe"
+  ]},
+  {q:"39. Frente a un cliente poco comunicativo, usted:", opts:[
+    "a) Se frustra",
+    "b) Usa preguntas abiertas y escucha",
+    "c) Termina rápido",
+    "d) Evita contacto"
+  ]},
+  {q:"40. ¿Qué papel juega la ética en sus ventas?", opts:[
+    "a) Innecesaria",
+    "b) Poco relevante",
+    "c) Es un valor esencial",
+    "d) Solo si conviene"
+  ]},
+  {q:"41. Si recibe un nuevo portafolio de productos, usted:", opts:[
+    "a) Se queja",
+    "b) Se capacita y estudia",
+    "c) Lo ignora",
+    "d) Lo deja de lado"
+  ]},
+  {q:"42. Cuando siente presión por las metas, usted:", opts:[
+    "a) Se organiza y busca soluciones",
+    "b) Se desmotiva",
+    "c) Culpa a otros",
+    "d) Se estresa y se bloquea"
+  ]},
+  {q:"43. Su visión sobre la capacitación constante es:", opts:[
+    "a) Solo si es obligatoria",
+    "b) Fundamental para crecer",
+    "c) Pérdida de tiempo",
+    "d) Poco necesaria"
+  ]},
+  {q:"44. Si un cliente pide condiciones poco realistas, usted:", opts:[
+    "a) Ignora la solicitud",
+    "b) Rechaza de inmediato",
+    "c) Negocia y plantea alternativas",
+    "d) Acepta sin pensar"
+  ]},
+  {q:"45. En el manejo de relaciones a largo plazo, usted:", opts:[
+    "a) Fomenta confianza y comunicación",
+    "b) Se limita al momento",
+    "c) No da seguimiento",
+    "d) Evita compromisos"
+  ]}
+];
 
-    const el = {
-      code: document.getElementById('candidateCode'),
-      start: document.getElementById('startBtn'),
-      timer: document.getElementById('timer'),
-      form: document.getElementById('examForm'),
-      submit: document.getElementById('submitBtn'),
-      resultWrap: document.getElementById('resultWrap'),
-      result: document.getElementById('result'),
-      download: document.getElementById('downloadBtn'),
-    };
+/* ================ UI refs ================ */
+const el = {
+  code: document.getElementById('candidateCode'),
+  startBtn: document.getElementById('startBtn'),
+  clearLocalBtn: document.getElementById('clearLocalBtn'),
+  timer: document.getElementById('timer'),
+  form: document.getElementById('examForm'),
+  submitBtn: document.getElementById('submitBtn'),
+  resultWrap: document.getElementById('resultWrap'),
+  result: document.getElementById('result'),
+  downloadBtn: document.getElementById('downloadBtn'),
+  resetBtn: document.getElementById('resetBtn')
+};
 
-    // Render
-    function renderExam(){
-      el.form.innerHTML="";
-      questions.forEach((item,i)=>{
-        const div=document.createElement('div');
-        div.className="question";
-        div.innerHTML=`<p>${item.q}</p>`;
-        item.opts.forEach(opt=>{
-          const v=opt.charAt(0);
-          div.innerHTML+=`<label class="option"><input type="radio" name="q${i}" value="${v}"/> ${opt}</label>`;
-        });
-        el.form.appendChild(div);
-      });
+/* ================ Render preguntas ================ */
+function renderExam(){
+  el.form.innerHTML = '';
+  questions.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.innerHTML = `<p><strong>${item.q}</strong></p>`;
+    // show options in given order (already mixed for personality)
+    item.opts.forEach(opt => {
+      // determine letter (first char before ') ' or first char before ')')
+      const letter = opt.trim().charAt(0); // e.g. 'a'
+      div.innerHTML += `<label class="option"><input type="radio" name="q${idx}" value="${letter}"> <span>${opt}</span></label>`;
+    });
+    el.form.appendChild(div);
+  });
+}
+
+/* ================ Timer ================ */
+const TOTAL_SECONDS = 25 * 60;
+let timeLeft = TOTAL_SECONDS;
+let timerInterval = null;
+
+function fmt(s){
+  const m = Math.floor(s/60), sec = s%60;
+  return `${m}:${sec<10?'0':''}${sec}`;
+}
+
+function startTimer(){
+  el.timer.textContent = `Tiempo restante: ${fmt(timeLeft)}`;
+  timerInterval = setInterval(()=>{
+    timeLeft--;
+    if(timeLeft < 0){
+      clearInterval(timerInterval);
+      submitExam(true);
+    } else {
+      el.timer.textContent = `Tiempo restante: ${fmt(timeLeft)}`;
     }
+  }, 1000);
+}
 
-    // Timer
-    const TOTAL=20*60; let left=TOTAL; let tick;
-    function startTimer(){
-      el.timer.textContent=`Tiempo restante: ${fmt(left)}`;
-      tick=setInterval(()=>{
-        left--; el.timer.textContent=`Tiempo restante: ${fmt(left)}`;
-        if(left<=0){ clearInterval(tick); submitExam(true); }
-      },1000);
-    }
-    function fmt(s){const m=Math.floor(s/60),sec=s%60;return `${m}:${sec<10?"0":""}${sec}`;}
+/* ================ LocalStorage helpers ================ */
+function storageKey(code){ return `exam_${code}`; }
+function codeUsed(code){ return localStorage.getItem(storageKey(code)) !== null; }
+function saveResult(code, payload){ localStorage.setItem(storageKey(code), JSON.stringify(payload)); }
+function clearResult(code){ localStorage.removeItem(storageKey(code)); }
 
-    // Un solo intento
-    function used(code){return localStorage.getItem("exam_"+code)!=null;}
-    function save(code,data){localStorage.setItem("exam_"+code,JSON.stringify(data));}
+/* Prevent accidental close */
+window.addEventListener('beforeunload', (e) => {
+  if(el.form.style.display !== 'none'){
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
 
-    el.start.onclick=()=>{
-      const code=el.code.value.trim();
-      if(!code){alert("Ingrese su código");return;}
-      if(used(code)){alert("Ya se contestó con esta clave en este navegador");return;}
-      renderExam();
-      el.form.style.display="block"; el.submit.style.display="inline-block";
-      startTimer();
-    };
+/* ================ Flow ================ */
+el.startBtn.addEventListener('click', ()=>{
+  const code = el.code.value.trim();
+  if(!code){ alert('Por favor ingresa tu código personal antes de iniciar.'); return; }
+  if(codeUsed(code)){ alert('Este examen ya fue contestado con esta clave en este navegador. Si consideras que esto es un error, usa "Limpiar bloqueo (local)" o contacta al reclutador.'); return; }
+  renderExam();
+  el.form.style.display = 'block';
+  el.submitBtn.style.display = 'inline-block';
+  el.startBtn.disabled = true;
+  el.clearLocalBtn.disabled = true;
+  el.code.disabled = true;
+  timeLeft = TOTAL_SECONDS;
+  startTimer();
+});
 
-    el.submit.onclick=()=>submitExam(false);
+el.clearLocalBtn.addEventListener('click', ()=>{
+  const code = el.code.value.trim();
+  if(!code){ alert('Ingresa primero la clave que quieres limpiar.'); return; }
+  if(confirm(`¿Borrar el registro local de la clave "${code}" en este navegador? Esto permite repetir el examen desde este mismo equipo.`)){
+    clearResult(code);
+    alert('Registro local borrado. Ahora la clave puede usarse otra vez en este navegador.');
+  }
+});
 
-    function submitExam(auto){
-      clearInterval(tick);
-      const code=el.code.value.trim();
-      const answers=[];
-      for(let i=0;i<questions.length;i++){
-        const sel=document.querySelector(`input[name="q${i}"]:checked`);
-        answers.push(sel?sel.value:"");
-      }
-      const payload={code,fecha:new Date().toLocaleString(),respuestas:answers};
-      save(code,payload);
+/* Enviar examen */
+el.submitBtn.addEventListener('click', ()=> submitExam(false));
 
-      el.resultWrap.style.display="block";
-      el.result.innerHTML=`<h3>Examen enviado</h3>
-        <p><b>Candidato:</b> ${code}</p>
-        <p>Fecha: ${payload.fecha}</p>
-        <p>Respuestas registradas: ${answers.filter(x=>x).length} de ${questions.length}</p>`;
+function submitExam(autoSubmitted){
+  // stop timer
+  if(timerInterval) clearInterval(timerInterval);
 
-      el.download.onclick=()=>{
-        const txt=[
-          "Resultado Examen Psicométrico – Ventas",
-          `Candidato: ${payload.code}`,
-          `Fecha: ${payload.fecha}`,
-          `Respuestas (a-d, vacío si no contestó):`,
-          payload.respuestas.join(",")
-        ].join("\n");
-        const blob=new Blob([txt],{type:"text/plain"});
-        const a=document.createElement("a");
-        a.href=URL.createObjectURL(blob);
-        a.download=`resultado_${payload.code||"sin_codigo"}.txt`;
-        a.click();
-      };
-    }
-  </script>
+  const code = el.code.value.trim();
+  if(!code){ alert('Código no encontrado.'); return; }
+
+  // recoger respuestas
+  const answers = [];
+  for(let i=0; i<questions.length; i++){
+    const sel = document.querySelector(`input[name="q${i}"]:checked`);
+    answers.push(sel ? sel.value : '');
+  }
+
+  // payload (guardamos todo en localStorage para registro interno)
+  const payload = {
+    code,
+    dateISO: new Date().toISOString(),
+    dateLocal: new Date().toLocaleString(),
+    autoSubmitted: !!autoSubmitted,
+    responses: answers // array length 45 with letters or ""
+  };
+
+  // guardar bloqueo
+  saveResult(code, payload);
+
+  // mostrar confirmación (sin puntaje)
+  el.resultWrap.style.display = 'block';
+  el.result.innerHTML = `
+    <h3 style="margin:0 0 8px;">Examen enviado</h3>
+    <p><strong>Código:</strong> ${payload.code}</p>
+    <p><strong>Fecha:</strong> ${payload.dateLocal}</p>
+    <p class="muted">Se registraron ${answers.filter(a=>a).length} respuestas de ${questions.length}. Descarga el comprobante y envíalo al reclutador.</p>
+  `;
+
+  // ocultar formulario para prevenir reintento
+  el.form.style.display = 'none';
+  el.submitBtn.style.display = 'none';
+  el.startBtn.disabled = false;
+  el.code.disabled = false;
+  el.clearLocalBtn.disabled = false;
+}
+
+/* Descargar .txt que solo contiene código, fecha y respuestas (sin puntaje) */
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
+  const code = el.code.value.trim();
+  const stored = localStorage.getItem(storageKey(code));
+  if(!stored){ alert('No se encontraron resultados guardados para esta clave en este navegador.'); return; }
+  const payload = JSON.parse(stored);
+  // build text with "1:a, 2:b, ..." format
+  const lines = [];
+  lines.push('Resultado Examen Psicométrico – Asesor Comercial de Ingredientes');
+  lines.push(`Candidato: ${payload.code}`);
+  lines.push(`Fecha: ${payload.dateLocal}`);
+  lines.push('');
+  lines.push('Respuestas (pregunta:respuesta) — vacío si no contestó:');
+  const pairs = payload.responses.map((r,i)=> `${i+1}:${r||''}`);
+  // group in a few lines for readability (5 per line)
+  for(let i=0;i<pairs.length;i+=5){
+    lines.push(pairs.slice(i,i+5).join('  |  '));
+  }
+  const blob = new Blob([lines.join('\n')], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `resultado_${payload.code||'sin_codigo'}.txt`;
+  a.click();
+});
+
+/* Reset / permitir siguiente candidato (solo UI, el bloqueo local sigue) */
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  el.resultWrap.style.display = 'none';
+  el.code.value = '';
+  el.form.style.display = 'none';
+  el.submitBtn.style.display = 'none';
+  timeLeft = TOTAL_SECONDS;
+  el.timer.textContent = `Tiempo restante: ${fmt(timeLeft)}`;
+});
+
+/* Inicial */
+el.timer.textContent = `Tiempo restante: ${fmt(TOTAL_SECONDS)}`;
+
+</script>
 </body>
 </html>
+
 
 
